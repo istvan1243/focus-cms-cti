@@ -1,4 +1,4 @@
-<?php
+<<?php
 
 namespace Istvan\ComposerFocusThemeInstaller;
 
@@ -21,9 +21,10 @@ class Installer extends LibraryInstaller implements PluginInterface
         // Nem kötelező implementálni, de a PluginInterface követelménye
     }
 
-    public function uninstall(Composer $composer, IOInterface $io)
+    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        // Nem kötelező implementálni, de a PluginInterface követelménye
+        // Hívjuk meg az ősosztály uninstall metódusát
+        parent::uninstall($repo, $package);
     }
 
     public function getInstallPath(PackageInterface $package)
