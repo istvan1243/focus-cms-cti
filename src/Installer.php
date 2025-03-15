@@ -7,6 +7,7 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
+use Composer\Repository\InstalledRepositoryInterface;
 
 class Installer extends LibraryInstaller implements PluginInterface
 {
@@ -20,20 +21,21 @@ class Installer extends LibraryInstaller implements PluginInterface
         // Nem kötelező implementálni, de a PluginInterface követelménye
     }
 
-    public function uninstall(Composer $composer, IOInterface $io)
+    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        // Nem kötelező implementálni, de a PluginInterface követelménye
-    }
-
-    public function supports($packageType)
-    {
-        return $packageType === 'focus-theme';
+        // Hívjuk meg az ősosztály uninstall metódusát
+        parent::uninstall($repo, $package);
     }
 
     public function getInstallPath(PackageInterface $package)
     {
         $themeName = $this->getThemeName($package);
         return "app/Themes/{$themeName}";
+    }
+
+    public function supports($packageType)
+    {
+        return $packageType === 'focus-theme';
     }
 
     protected function getThemeName(PackageInterface $package)
