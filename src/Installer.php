@@ -21,9 +21,14 @@ class Installer extends LibraryInstaller implements PluginInterface
         // Nem kötelező implementálni, de a PluginInterface követelménye
     }
 
-    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
+    public function uninstall(Composer $composer, IOInterface $io)
     {
-        // Hívjuk meg az ősosztály uninstall metódusát
+        // A PluginInterface követelménye
+    }
+
+    public function uninstallPackage(InstalledRepositoryInterface $repo, PackageInterface $package)
+    {
+        // A LibraryInstaller követelménye
         parent::uninstall($repo, $package);
     }
 
