@@ -2,11 +2,29 @@
 
 namespace Istvan\ComposerFocusThemeInstaller;
 
+use Composer\Composer;
+use Composer\IO\IOInterface;
+use Composer\Plugin\PluginInterface;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
 
-class Installer extends LibraryInstaller
+class Installer extends LibraryInstaller implements PluginInterface
 {
+    public function activate(Composer $composer, IOInterface $io)
+    {
+        $composer->getInstallationManager()->addInstaller($this);
+    }
+
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+        // Nem kötelező implementálni, de a PluginInterface követelménye
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+        // Nem kötelező implementálni, de a PluginInterface követelménye
+    }
+
     public function supports($packageType)
     {
         return $packageType === 'focus-theme';
