@@ -1,0 +1,16 @@
+{
+    "name": "istvan86/composer-focus-theme-installer",
+    "type": "composer-plugin",
+    "description": "A custom Composer installer for focus themes.",
+    "require": {
+        "composer-plugin-api": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "istvan86\\ComposerFocusThemeInstaller\\": "src/"
+        }
+    },
+    "extra": {
+        "class": "istvan86\\ComposerFocusThemeInstaller\\Installer"
+    }
+}
