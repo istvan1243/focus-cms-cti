@@ -7,10 +7,10 @@
     },
     "autoload": {
         "psr-4": {
-            "istvan86\\ComposerFocusThemeInstaller\\": "src/"
+            "Istvan\\ComposerFocusThemeInstaller\\": "src/"
         }
     },
     "extra": {
-        "class": "istvan86\\ComposerFocusThemeInstaller\\Installer"
+        "class": "Istvan\\ComposerFocusThemeInstaller\\Installer"
     }
 }
