@@ -23,6 +23,13 @@ class Installer extends LibraryInstaller
     protected function getThemeName(PackageInterface $package)
     {
         $packageName = $package->getPrettyName();
-        return str_replace('istvan/', '', $packageName);
+        $packageName = str_replace('istvan/', '', $packageName);
+
+        // Átalakítás PSR-4 kompatibilis névre
+        $themeName = str_replace('-', ' ', $packageName); // Kötőjelek helyett szóköz
+        $themeName = ucwords($themeName); // Minden szó első betűje nagybetű
+        $themeName = str_replace(' ', '', $themeName); // Szóközök eltávolítása
+
+        return $themeName;
     }
 }
