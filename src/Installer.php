@@ -12,7 +12,7 @@ class Installer extends LibraryInstaller
     public function getInstallPath(PackageInterface $package)
     {
         $themeName = $this->getThemeName($package);
-        return "app/Themes/{$themeName}";
+        return "Themes/{$themeName}";
     }
 
     public function supports($packageType)
