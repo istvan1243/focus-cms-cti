@@ -5,8 +5,9 @@ namespace Istvan\ComposerFocusThemeInstaller;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
+use Composer\EventDispatcher\EventSubscriberInterface;
 
-class Plugin implements PluginInterface
+class Plugin implements PluginInterface, EventSubscriberInterface
 {
     public function activate(Composer $composer, IOInterface $io)
     {
@@ -14,13 +15,24 @@ class Plugin implements PluginInterface
         $composer->getInstallationManager()->addInstaller($installer);
     }
 
-    public function deactivate(Composer $composer, IOInterface $io)
+    public function deactivate(Composer $composer, IOInterface $io) {}
+    public function uninstall(Composer $composer, IOInterface $io) {}
+
+    public static function getSubscribedEvents()
     {
-        // Nincs szükség külön implementációra
+        return [
+            'post-package-install' => ['onPostPackageInstall', 0],
+            'post-package-uninstall' => ['onPostPackageUninstall', 0],
+        ];
     }
 
-    public function uninstall(Composer $composer, IOInterface $io)
+    public function onPostPackageInstall(\Composer\Installer\PackageEvent $event)
     {
-        // Itt sem szükséges implementáció
+        Installer::postPackageInstall($event);
+    }
+
+    public function onPostPackageUninstall(\Composer\Installer\PackageEvent $event)
+    {
+        Installer::postPackageUninstall($event);
     }
 }
