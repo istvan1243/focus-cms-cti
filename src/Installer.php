@@ -6,6 +6,7 @@ use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
+use Composer\Repository\InstalledRepositoryInterface;
 use Symfony\Component\Process\Process;
 
 class Installer extends LibraryInstaller
@@ -34,27 +35,27 @@ class Installer extends LibraryInstaller
         return $themeName;
     }
 
-    public function install(Composer $composer, IOInterface $io, PackageInterface $package)
+    public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
-        parent::install($composer, $io, $package);
+        parent::install($repo, $package);
 
         $themeName = $this->getThemeName($package);
-        $io->write("<info>Running theme setup for: {$themeName}</info>");
+        echo "<info>Running theme setup for: {$themeName}</info>\n";
 
         // Artisan parancs futtatása (theme:setup)
-        $this->runArtisanCommand("theme:setup", $themeName, $io);
+        $this->runArtisanCommand("theme:setup", $themeName);
     }
 
-    protected function runArtisanCommand($command, $themeName, IOInterface $io)
+    protected function runArtisanCommand($command, $themeName)
     {
         $process = new Process(["php", "artisan", $command, $themeName]);
         $process->setWorkingDirectory(getcwd());
         $process->run();
 
         if (!$process->isSuccessful()) {
-            $io->write("<error>{$command} failed: {$process->getErrorOutput()}</error>");
+            echo "<error>{$command} failed: {$process->getErrorOutput()}</error>\n";
         } else {
-            $io->write("<info>{$command} executed successfully!</info>");
+            echo "<info>{$command} executed successfully!</info>\n";
         }
     }
 }
