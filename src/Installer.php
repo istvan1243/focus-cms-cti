@@ -26,8 +26,7 @@ class Installer extends LibraryInstaller
     {
         $package = $event->getOperation()->getPackage();
         if ($package->getType() === 'focus-theme') {
-            $installer = new self($event->getIO(), $event->getComposer());
-            $themeName = $installer->getThemeName($package);
+            $themeName = self::getThemeNameForPackage($package);
             self::executeArtisanCommand($event->getIO(), "theme:setup {$themeName}");
         }
     }
@@ -36,8 +35,7 @@ class Installer extends LibraryInstaller
     {
         $package = $event->getOperation()->getPackage();
         if ($package->getType() === 'focus-theme') {
-            $installer = new self($event->getIO(), $event->getComposer());
-            $themeName = $installer->getThemeName($package);
+            $themeName = self::getThemeNameForPackage($package);
             self::executeArtisanCommand($event->getIO(), "theme:setup {$themeName}");
         }
     }
@@ -46,13 +44,12 @@ class Installer extends LibraryInstaller
     {
         $package = $event->getOperation()->getPackage();
         if ($package->getType() === 'focus-theme') {
-            $installer = new self($event->getIO(), $event->getComposer());
-            $themeName = $installer->getThemeName($package);
+            $themeName = self::getThemeNameForPackage($package);
             self::executeArtisanCommand($event->getIO(), "theme:remove {$themeName}", true);
         }
     }
 
-    protected function getThemeName(PackageInterface $package)
+    public static function getThemeNameForPackage(PackageInterface $package)
     {
         $packageName = $package->getPrettyName();
         $packageName = str_replace('istvan/', '', $packageName);
@@ -60,6 +57,11 @@ class Installer extends LibraryInstaller
         $themeName = str_replace('-', ' ', $packageName);
         $themeName = ucwords($themeName);
         return str_replace(' ', '', $themeName);
+    }
+
+    protected function getThemeName(PackageInterface $package)
+    {
+        return self::getThemeNameForPackage($package);
     }
 
     protected static function executeArtisanCommand(IOInterface $io, $command, $ignoreErrors = false)
