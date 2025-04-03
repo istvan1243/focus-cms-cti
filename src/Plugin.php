@@ -53,16 +53,14 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if (!file_exists(getcwd() . '/vendor/autoload.php')) {
             return;
         }
-
         $this->runThemeSetupForAllThemes($event->getIO(), $event->getComposer());
     }
 
     public function onPostAutoloadDump(Event $event)
     {
-        if (self::$themeSetupRun) {
+        if (self::$themeSetupRun || !file_exists(getcwd() . '/vendor/autoload.php')) {
             return;
         }
-
         $this->runThemeSetupForAllThemes($event->getIO(), $event->getComposer());
     }
 
