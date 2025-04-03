@@ -2,69 +2,44 @@
 
 namespace Istvan\ComposerFocusThemeInstaller;
 
-use Composer\Installer\LibraryInstaller;
-use Composer\Package\PackageInterface;
-use Composer\Repository\InstalledRepositoryInterface;
-use Symfony\Component\Process\Process;
+use Composer\Composer;
+use Composer\IO\IOInterface;
+use Composer\Plugin\PluginInterface;
+use Composer\EventDispatcher\EventSubscriberInterface;
 
-class Installer extends LibraryInstaller
+class Plugin implements PluginInterface, EventSubscriberInterface
 {
-    public function getInstallPath(PackageInterface $package)
+    public function activate(Composer $composer, IOInterface $io)
     {
-        $themeName = $this->getThemeName($package);
-        return "Themes/{$themeName}";
+        $installer = new Installer($io, $composer);
+        $composer->getInstallationManager()->addInstaller($installer);
     }
 
-    public function supports($packageType)
+    public function deactivate(Composer $composer, IOInterface $io)
     {
-        return $packageType === 'focus-theme';
+        // Nincs szükség külön implementációra
     }
 
-    protected function getThemeName(PackageInterface $package)
+    public function uninstall(Composer $composer, IOInterface $io)
     {
-        $packageName = $package->getPrettyName();
-        $packageName = str_replace('istvan/', '', $packageName);
-
-        // Kötőjelből CamelCase alakítás
-        $themeName = str_replace('-', ' ', $packageName);
-        $themeName = ucwords($themeName);
-        $themeName = str_replace(' ', '', $themeName);
-
-        return $themeName;
+        // Itt sem szükséges implementáció
     }
 
-    public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
+    public static function getSubscribedEvents()
     {
-        parent::install($repo, $package);
-
-        $themeName = $this->getThemeName($package);
-        echo "Running theme setup for: {$themeName}\n";
-
-        // Artisan parancs futtatása telepítéskor
-        $this->runArtisanCommand("theme:setup", $themeName);
+        return [
+            'post-package-install' => 'postPackageInstall',
+            'post-package-uninstall' => 'postPackageUninstall',
+        ];
     }
 
-    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
+    public function postPackageInstall(\Composer\Installer\PackageEvent $event)
     {
-        parent::uninstall($repo, $package);
-
-        $themeName = $this->getThemeName($package);
-        echo "Removing theme: {$themeName}\n";
-
-        // Artisan parancs futtatása eltávolításkor
-        $this->runArtisanCommand("theme:remove", $themeName);
+        Installer::postPackageInstall($event);
     }
 
-    protected function runArtisanCommand($command, $themeName)
+    public function postPackageUninstall(\Composer\Installer\PackageEvent $event)
     {
-        $process = new Process(["php", "artisan", $command, $themeName]);
-        $process->setWorkingDirectory(getcwd());
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            echo "{$command} failed: " . $process->getErrorOutput() . "\n";
-        } else {
-            echo "{$command} executed successfully!\n";
-        }
+        Installer::postPackageUninstall($event);
     }
 }
