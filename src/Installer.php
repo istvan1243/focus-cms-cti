@@ -6,6 +6,7 @@ use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
+use Symfony\Component\Process\Process;
 
 class Installer extends LibraryInstaller
 {
@@ -25,11 +26,30 @@ class Installer extends LibraryInstaller
         $packageName = $package->getPrettyName();
         $packageName = str_replace('istvan/', '', $packageName);
 
-        // Átalakítás PSR-4 kompatibilis névre
-        $themeName = str_replace('-', ' ', $packageName); // Kötőjelek helyett szóköz
-        $themeName = ucwords($themeName); // Minden szó első betűje nagybetű
-        $themeName = str_replace(' ', '', $themeName); // Szóközök eltávolítása
+        // Kötőjelből camel case (PSR-4 név konverzió)
+        $themeName = str_replace('-', ' ', $packageName);
+        $themeName = ucwords($themeName);
+        $themeName = str_replace(' ', '', $themeName);
 
         return $themeName;
+    }
+
+    public function install(Composer $composer, IOInterface $io, PackageInterface $package)
+    {
+        parent::install($composer, $io, $package);
+
+        $themeName = $this->getThemeName($package);
+        $io->write("<info>Running theme setup for: {$themeName}</info>");
+
+        // Artisan parancs futtatása
+        $process = new Process(["php", "artisan", "theme:setup", $themeName]);
+        $process->setWorkingDirectory(getcwd());
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            $io->write("<error>Theme setup failed: {$process->getErrorOutput()}</error>");
+        } else {
+            $io->write("<info>Theme setup completed successfully!</info>");
+        }
     }
 }
