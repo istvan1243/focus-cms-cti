@@ -93,6 +93,7 @@ class Installer extends LibraryInstaller
         }
     }
 
+
     protected function getThemeName(PackageInterface $package)
     {
         return self::getThemeNameForPackage($package);
