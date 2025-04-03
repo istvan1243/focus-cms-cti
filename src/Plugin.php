@@ -11,6 +11,8 @@ use Composer\Script\Event;
 
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
+    private static $themeSetupRun = false;
+
     public function activate(Composer $composer, IOInterface $io)
     {
         $installer = new Installer($io, $composer);
@@ -49,27 +51,32 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function onPostUpdate(Event $event)
     {
         // Csak akkor futtatjuk, ha már létezik az autoloader
-        if (!file_exists(getcwd() . '/vendor/autoload.php')) {
+        if (!file_exists(getcwd() . '/vendor/autoload.php') {
             return;
         }
 
-        $packages = $event->getComposer()->getRepositoryManager()->getLocalRepository()->getPackages();
-        foreach ($packages as $package) {
-            if ($package->getType() === 'focus-theme') {
-                $themeName = Installer::getThemeNameForPackage($package);
-                Installer::executeArtisanCommand($event->getIO(), "theme:setup {$themeName}");
-            }
-        }
+        $this->runThemeSetupForAllThemes($event->getIO(), $event->getComposer());
     }
 
     public function onPostAutoloadDump(Event $event)
     {
-        $packages = $event->getComposer()->getRepositoryManager()->getLocalRepository()->getPackages();
+        // Ha már futott a theme setup, ne futtassuk újra
+        if (self::$themeSetupRun) {
+            return;
+        }
+
+        $this->runThemeSetupForAllThemes($event->getIO(), $event->getComposer());
+    }
+
+    private function runThemeSetupForAllThemes(IOInterface $io, Composer $composer)
+    {
+        $packages = $composer->getRepositoryManager()->getLocalRepository()->getPackages();
         foreach ($packages as $package) {
             if ($package->getType() === 'focus-theme') {
                 $themeName = Installer::getThemeNameForPackage($package);
-                Installer::executeArtisanCommand($event->getIO(), "theme:setup {$themeName}");
+                Installer::executeArtisanCommand($io, "theme:setup {$themeName}");
             }
         }
+        self::$themeSetupRun = true;
     }
 }
