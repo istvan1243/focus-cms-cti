@@ -5,8 +5,7 @@ namespace Istvan\ComposerFocusThemeInstaller;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Container\Container;
+use Symfony\Component\Process\Process;
 
 class Plugin implements PluginInterface
 {
@@ -18,47 +17,38 @@ class Plugin implements PluginInterface
 
     public function deactivate(Composer $composer, IOInterface $io)
     {
-        // Nincs szükség külön implementációra
+        // Nem szükséges implementáció
     }
 
     public function uninstall(Composer $composer, IOInterface $io)
     {
-        // Csomag neve alapján törli a téma beállításait
         $package = $composer->getPackage();
         $themeName = $this->getThemeName($package->getPrettyName());
 
-        // Laravel parancsokat közvetlenül a Laravel konténer segítségével futtatjuk
-        $this->runArtisanCommand($themeName);
+        $io->write("<info>Removing theme: {$themeName}</info>");
 
-        $io->write("Téma törölve: {$themeName}");
+        // Artisan parancs futtatása (theme:remove)
+        $this->runArtisanCommand("theme:remove", $themeName, $io);
     }
 
-    /**
-     * Futtatja a Laravel Artisan parancsot.
-     *
-     * @param string $themeName
-     */
-    protected function runArtisanCommand($themeName)
-    {
-        // Hozzáférés a Laravel konténerhez
-        $container = Container::getInstance();
-
-        // Hívja meg a Laravel parancsot közvetlenül
-        $artisan = $container->make(Artisan::class);
-        $artisan->call('theme:remove', ['theme' => $themeName]);
-    }
-
-    /**
-     * Kinyeri a téma nevét a csomagból.
-     *
-     * @param string $packageName
-     * @return string
-     */
     protected function getThemeName($packageName)
     {
         $packageName = str_replace('istvan/', '', $packageName);
         $themeName = str_replace('-', ' ', $packageName);
         $themeName = ucwords($themeName);
         return str_replace(' ', '', $themeName);
+    }
+
+    protected function runArtisanCommand($command, $themeName, IOInterface $io)
+    {
+        $process = new Process(["php", "artisan", $command, $themeName]);
+        $process->setWorkingDirectory(getcwd());
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            $io->write("<error>{$command} failed: {$process->getErrorOutput()}</error>");
+        } else {
+            $io->write("<info>{$command} executed successfully!</info>");
+        }
     }
 }

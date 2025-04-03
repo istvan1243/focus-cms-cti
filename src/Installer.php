@@ -41,15 +41,20 @@ class Installer extends LibraryInstaller
         $themeName = $this->getThemeName($package);
         $io->write("<info>Running theme setup for: {$themeName}</info>");
 
-        // Csak a theme.json értékek beállítása
-        $process = new Process(["php", "artisan", "theme:setup", $themeName]);
+        // Artisan parancs futtatása (theme:setup)
+        $this->runArtisanCommand("theme:setup", $themeName, $io);
+    }
+
+    protected function runArtisanCommand($command, $themeName, IOInterface $io)
+    {
+        $process = new Process(["php", "artisan", $command, $themeName]);
         $process->setWorkingDirectory(getcwd());
         $process->run();
 
         if (!$process->isSuccessful()) {
-            $io->write("<error>Theme setup failed: {$process->getErrorOutput()}</error>");
+            $io->write("<error>{$command} failed: {$process->getErrorOutput()}</error>");
         } else {
-            $io->write("<info>Theme setup completed successfully!</info>");
+            $io->write("<info>{$command} executed successfully!</info>");
         }
     }
 }
