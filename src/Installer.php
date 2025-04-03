@@ -59,12 +59,7 @@ class Installer extends LibraryInstaller
         return str_replace(' ', '', $themeName);
     }
 
-    protected function getThemeName(PackageInterface $package)
-    {
-        return self::getThemeNameForPackage($package);
-    }
-
-    protected static function executeArtisanCommand(IOInterface $io, $command, $ignoreErrors = false)
+    public static function executeArtisanCommand(IOInterface $io, $command, $ignoreErrors = false)
     {
         $cwd = getcwd();
         $artisanPath = $cwd . '/artisan';
@@ -90,5 +85,10 @@ class Installer extends LibraryInstaller
             }
             return false;
         }
+    }
+
+    protected function getThemeName(PackageInterface $package)
+    {
+        return self::getThemeNameForPackage($package);
     }
 }
