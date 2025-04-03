@@ -5,10 +5,9 @@ namespace Istvan\ComposerFocusThemeInstaller;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
-use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Process\Process;
+use Composer\EventDispatcher\EventSubscriberInterface;
 
-class Plugin implements PluginInterface
+class Plugin implements PluginInterface, EventSubscriberInterface
 {
     public function activate(Composer $composer, IOInterface $io)
     {
@@ -16,37 +15,24 @@ class Plugin implements PluginInterface
         $composer->getInstallationManager()->addInstaller($installer);
     }
 
-    public function deactivate(Composer $composer, IOInterface $io)
+    public function deactivate(Composer $composer, IOInterface $io) {}
+    public function uninstall(Composer $composer, IOInterface $io) {}
+
+    public static function getSubscribedEvents()
     {
-        // Nincs szükség külön implementációra
+        return [
+            'post-package-install' => ['handlePackageInstall', 0],
+            'post-package-uninstall' => ['handlePackageUninstall', 0],
+        ];
     }
 
-    public function uninstall(Composer $composer, IOInterface $io)
+    public function handlePackageInstall(\Composer\Installer\PackageEvent $event)
     {
-        $package = $composer->getPackage();
-        $themeName = $this->getThemeName($package->getPrettyName());
-
-        $this->runArtisanCommand("theme:remove", $themeName, $io);
+        Installer::postPackageInstall($event);
     }
 
-    protected function getThemeName($packageName)
+    public function handlePackageUninstall(\Composer\Installer\PackageEvent $event)
     {
-        $packageName = str_replace('istvan/', '', $packageName);
-        $themeName = str_replace('-', ' ', $packageName);
-        $themeName = ucwords($themeName);
-        return str_replace(' ', '', $themeName);
-    }
-
-    protected function runArtisanCommand($command, $themeName, IOInterface $io)
-    {
-        $process = new Process(["php", "artisan", $command, $themeName]);
-        $process->setWorkingDirectory(getcwd());
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            $io->writeError("<error>{$command} failed: " . $process->getErrorOutput() . "</error>");
-        } else {
-            $io->write("<info>{$command} executed successfully for {$themeName}!</info>");
-        }
+        Installer::postPackageUninstall($event);
     }
 }
