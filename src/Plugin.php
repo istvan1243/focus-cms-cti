@@ -28,8 +28,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             'post-package-install' => ['onPostPackageInstall', 0],
             'post-package-update' => ['onPostPackageUpdate', 0],
             'post-package-uninstall' => ['onPostPackageUninstall', 0],
-            //'post-update-cmd' => ['onPostUpdate', 0],
-            'post-autoload-dump' => ['onPostAutoloadDump', 0],
+            'post-update-cmd' => ['onPostUpdate', 0],
+            //'post-autoload-dump' => ['onPostAutoloadDump', 0],
         ];
     }
 
