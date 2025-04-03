@@ -5,6 +5,7 @@ namespace Istvan\ComposerFocusThemeInstaller;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
+use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Process\Process;
 
 class Plugin implements PluginInterface
@@ -17,7 +18,7 @@ class Plugin implements PluginInterface
 
     public function deactivate(Composer $composer, IOInterface $io)
     {
-        // Nem szükséges implementáció
+        // Nincs szükség külön implementációra
     }
 
     public function uninstall(Composer $composer, IOInterface $io)
@@ -25,9 +26,6 @@ class Plugin implements PluginInterface
         $package = $composer->getPackage();
         $themeName = $this->getThemeName($package->getPrettyName());
 
-        $io->write("<info>Removing theme: {$themeName}</info>");
-
-        // Artisan parancs futtatása (theme:remove)
         $this->runArtisanCommand("theme:remove", $themeName, $io);
     }
 
@@ -46,9 +44,9 @@ class Plugin implements PluginInterface
         $process->run();
 
         if (!$process->isSuccessful()) {
-            $io->write("<error>{$command} failed: {$process->getErrorOutput()}</error>");
+            $io->writeError("<error>{$command} failed: " . $process->getErrorOutput() . "</error>");
         } else {
-            $io->write("<info>{$command} executed successfully!</info>");
+            $io->write("<info>{$command} executed successfully for {$themeName}!</info>");
         }
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Istvan\ComposerFocusThemeInstaller;
 
-use Composer\Composer;
-use Composer\IO\IOInterface;
 use Composer\Installer\LibraryInstaller;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
@@ -27,7 +25,7 @@ class Installer extends LibraryInstaller
         $packageName = $package->getPrettyName();
         $packageName = str_replace('istvan/', '', $packageName);
 
-        // Kötőjelből camel case (PSR-4 név konverzió)
+        // Kötőjelből CamelCase alakítás
         $themeName = str_replace('-', ' ', $packageName);
         $themeName = ucwords($themeName);
         $themeName = str_replace(' ', '', $themeName);
@@ -40,10 +38,21 @@ class Installer extends LibraryInstaller
         parent::install($repo, $package);
 
         $themeName = $this->getThemeName($package);
-        echo "<info>Running theme setup for: {$themeName}</info>\n";
+        echo "Running theme setup for: {$themeName}\n";
 
-        // Artisan parancs futtatása (theme:setup)
+        // Artisan parancs futtatása telepítéskor
         $this->runArtisanCommand("theme:setup", $themeName);
+    }
+
+    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
+    {
+        parent::uninstall($repo, $package);
+
+        $themeName = $this->getThemeName($package);
+        echo "Removing theme: {$themeName}\n";
+
+        // Artisan parancs futtatása eltávolításkor
+        $this->runArtisanCommand("theme:remove", $themeName);
     }
 
     protected function runArtisanCommand($command, $themeName)
@@ -53,9 +62,9 @@ class Installer extends LibraryInstaller
         $process->run();
 
         if (!$process->isSuccessful()) {
-            echo "<error>{$command} failed: {$process->getErrorOutput()}</error>\n";
+            echo "{$command} failed: " . $process->getErrorOutput() . "\n";
         } else {
-            echo "<info>{$command} executed successfully!</info>\n";
+            echo "{$command} executed successfully!\n";
         }
     }
 }
