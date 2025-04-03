@@ -33,7 +33,16 @@ class Installer extends LibraryInstaller
 
     public static function postPackageUpdate(PackageEvent $event)
     {
-        $package = $event->getOperation()->getPackage();
+        $operation = $event->getOperation();
+
+        if ($operation instanceof \Composer\DependencyResolver\Operation\UpdateOperation) {
+            $package = $operation->getTargetPackage();
+        } elseif ($operation instanceof \Composer\DependencyResolver\Operation\InstallOperation) {
+            $package = $operation->getPackage();
+        } else {
+            return;
+        }
+
         if ($package->getType() === 'focus-theme') {
             $themeName = self::getThemeNameForPackage($package);
             self::executeArtisanCommand($event->getIO(), "theme:setup {$themeName}");
@@ -48,6 +57,7 @@ class Installer extends LibraryInstaller
             self::executeArtisanCommand($event->getIO(), "theme:remove {$themeName}", true);
         }
     }
+
 
     public static function getThemeNameForPackage(PackageInterface $package)
     {
