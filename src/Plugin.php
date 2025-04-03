@@ -27,6 +27,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             'post-package-update' => ['onPostPackageUpdate', 0],
             'post-package-uninstall' => ['onPostPackageUninstall', 0],
             'post-update-cmd' => ['onPostUpdate', 0],
+            'post-autoload-dump' => ['onPostAutoloadDump', 0],
         ];
     }
 
@@ -46,6 +47,22 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
 
     public function onPostUpdate(Event $event)
+    {
+        // Csak akkor futtatjuk, ha már létezik az autoloader
+        if (!file_exists(getcwd() . '/vendor/autoload.php')) {
+            return;
+        }
+
+        $packages = $event->getComposer()->getRepositoryManager()->getLocalRepository()->getPackages();
+        foreach ($packages as $package) {
+            if ($package->getType() === 'focus-theme') {
+                $themeName = Installer::getThemeNameForPackage($package);
+                Installer::executeArtisanCommand($event->getIO(), "theme:setup {$themeName}");
+            }
+        }
+    }
+
+    public function onPostAutoloadDump(Event $event)
     {
         $packages = $event->getComposer()->getRepositoryManager()->getLocalRepository()->getPackages();
         foreach ($packages as $package) {

@@ -69,6 +69,12 @@ class Installer extends LibraryInstaller
             return false;
         }
 
+        // Ellenőrizzük, hogy létezik-e az autoload.php
+        if (!file_exists($cwd . '/vendor/autoload.php')) {
+            $io->write("<comment>Autoloader még nem létezik, kihagyjuk a parancsot</comment>");
+            return true;
+        }
+
         $process = new Process(['php', $artisanPath, ...explode(' ', $command)]);
         $process->setTimeout(300);
         $process->setWorkingDirectory($cwd);
