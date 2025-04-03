@@ -6,6 +6,7 @@ use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Container\Container;
 
 class Plugin implements PluginInterface
 {
@@ -26,12 +27,33 @@ class Plugin implements PluginInterface
         $package = $composer->getPackage();
         $themeName = $this->getThemeName($package->getPrettyName());
 
-        // Laravel Artisan parancs meghívása
-        Artisan::call('theme:remove', ['theme' => $themeName]);
+        // Laravel parancsokat közvetlenül a Laravel konténer segítségével futtatjuk
+        $this->runArtisanCommand($themeName);
 
         $io->write("Téma törölve: {$themeName}");
     }
 
+    /**
+     * Futtatja a Laravel Artisan parancsot.
+     *
+     * @param string $themeName
+     */
+    protected function runArtisanCommand($themeName)
+    {
+        // Hozzáférés a Laravel konténerhez
+        $container = Container::getInstance();
+
+        // Hívja meg a Laravel parancsot közvetlenül
+        $artisan = $container->make(Artisan::class);
+        $artisan->call('theme:remove', ['theme' => $themeName]);
+    }
+
+    /**
+     * Kinyeri a téma nevét a csomagból.
+     *
+     * @param string $packageName
+     * @return string
+     */
     protected function getThemeName($packageName)
     {
         $packageName = str_replace('istvan/', '', $packageName);

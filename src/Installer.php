@@ -41,7 +41,7 @@ class Installer extends LibraryInstaller
         $themeName = $this->getThemeName($package);
         $io->write("<info>Running theme setup for: {$themeName}</info>");
 
-        // Artisan parancs futtatása
+        // Csak a theme.json értékek beállítása
         $process = new Process(["php", "artisan", "theme:setup", $themeName]);
         $process->setWorkingDirectory(getcwd());
         $process->run();
