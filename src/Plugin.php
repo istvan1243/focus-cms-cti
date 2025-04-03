@@ -50,8 +50,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     public function onPostUpdate(Event $event)
     {
-        // Csak akkor futtatjuk, ha már létezik az autoloader
-        if (!file_exists(getcwd() . '/vendor/autoload.php') {
+        if (!file_exists(getcwd() . '/vendor/autoload.php')) {
             return;
         }
 
@@ -60,7 +59,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     public function onPostAutoloadDump(Event $event)
     {
-        // Ha már futott a theme setup, ne futtassuk újra
         if (self::$themeSetupRun) {
             return;
         }
