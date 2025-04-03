@@ -11,6 +11,6 @@
         }
     },
     "extra": {
-        "class": "Istvan\\ComposerFocusThemeInstaller\\Plugin"
+        "class": "Themes\\ComposerFocusThemeInstaller\\Plugin"
     }
 }
