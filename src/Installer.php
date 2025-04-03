@@ -32,6 +32,16 @@ class Installer extends LibraryInstaller
         }
     }
 
+    public static function postPackageUpdate(PackageEvent $event)
+    {
+        $package = $event->getOperation()->getPackage();
+        if ($package->getType() === 'focus-theme') {
+            $installer = new self($event->getIO(), $event->getComposer());
+            $themeName = $installer->getThemeName($package);
+            self::executeArtisanCommand($event->getIO(), "theme:setup {$themeName}");
+        }
+    }
+
     public static function postPackageUninstall(PackageEvent $event)
     {
         $package = $event->getOperation()->getPackage();
